@@ -1,4 +1,5 @@
 from django.shortcuts import render  # type: ignore[import-untyped]
+from django.http import Http404
 
 
 posts = [
@@ -44,6 +45,12 @@ posts = [
     },
 ]
 
+new_posts = {str(post['id']): {'id': post['id'],
+                               'location': post['location'],
+                               'date': post['date'],
+                               'category': post['category'],
+                               'text': post['text']} for post in posts}
+
 
 # Create your views here.
 def index(request):
@@ -54,12 +61,18 @@ def index(request):
     return render(request, template_name, context)
 
 
-def post_detail(request, id):
+def post_detail(request, post_id):
     template_name = 'blog/detail.html'
-    post = posts[id]
+
+    if str(post_id) not in new_posts.keys():
+        # raise ValueError(f'Нет поста с таким иднтифакатором: {post_id}')
+        raise Http404(f'Нет поста с таким идeнтифакатором: {post_id}')
+    post = new_posts[str(post_id)]
+
     context = {
         'post': post
     }
+
     return render(request, template_name, context)
 
 
